@@ -12,7 +12,7 @@ from collections import*
 
 def crop(canvas):
     
-    canvas.data.cropPopToHappen=True
+    canvas.data.cropaction=True
     messagebox.showinfo(title="Crop", message="Draw cropping rectangle and press Enter" , parent=canvas.data.mainWindow)
     if canvas.data.image!=None:
         canvas.data.mainWindow.bind("<ButtonPress-1>", lambda event: startCrop(event, canvas))
@@ -21,19 +21,19 @@ def crop(canvas):
 
 def startCrop(event, canvas):
     
-    if canvas.data.endCrop==False and canvas.data.cropPopToHappen==True:
+    if canvas.data.endCrop==False and canvas.data.cropaction==True:
         canvas.data.startCropX=event.x
         canvas.data.startCropY=event.y
 
 def drawCrop(event,canvas):
-    if canvas.data.endCrop==False and canvas.data.cropPopToHappen==True:
+    if canvas.data.endCrop==False and canvas.data.cropaction==True:
         canvas.data.tempCropX=event.x
         canvas.data.tempCropY=event.y
         canvas.create_rectangle(canvas.data.startCropX,canvas.data.startCropY,canvas.data.tempCropX,canvas.data.tempCropY, fill="gray", stipple="gray12", width=0)
 
 def endCrop(event, canvas):
 
-    if canvas.data.cropPopToHappen==True:
+    if canvas.data.cropaction==True:
         canvas.data.endCrop=True
         canvas.data.endCropX=event.x
         canvas.data.endCropY=event.y
@@ -48,65 +48,64 @@ def performCrop(event,canvas):
     int(round((canvas.data.endCropX-canvas.data.imageTopX)*canvas.data.imageScale)),
     int(round((canvas.data.endCropY-canvas.data.imageTopY)*canvas.data.imageScale))))
     canvas.data.endCrop=False
-    canvas.data.cropPopToHappen=False
+    canvas.data.cropaction=False
     save(canvas)
     canvas.data.undoQueue.append(canvas.data.image.copy())
-    canvas.data.imageForTk=makeImageForTk(canvas)
+    canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
     
     
     
-def rotate_imager(canvas):
+def rotate_right(canvas):
     ig=canvas.data.image
     newimg= ig.rotate(-90)
 
     canvas.data.image=newimg
     save(canvas)
     canvas.data.undoQueue.append(canvas.data.image.copy())
-    canvas.data.imageForTk=makeImageForTk(canvas)
+    canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
 
-def rotate_imagel(canvas):
+def rotate_left(canvas):
     ig=canvas.data.image
     newimg= ig.rotate(90)
     canvas.data.image=newimg
     save(canvas)
     canvas.data.undoQueue.append(canvas.data.image.copy())
-    canvas.data.imageForTk=makeImageForTk(canvas)
+    canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
 
 def reset(canvas):
-    
-    canvas.data.cropPopToHappen=False
+    canvas.data.cropaction=False
     
     if canvas.data.image!=None:
         canvas.data.image=canvas.data.originalImage.copy()
         save(canvas)
         canvas.data.undoQueue.append(canvas.data.image.copy())
-        canvas.data.imageForTk=makeImageForTk(canvas)
+        canvas.data.imageForTk=resize_func(canvas)
         drawImage(canvas)
 
 
 def mirror(canvas):
     
-    canvas.data.cropPopToHappen=False
+    canvas.data.cropaction=False
     
     if canvas.data.image!=None:
         canvas.data.image=ImageOps.mirror(canvas.data.image)
         save(canvas)
         canvas.data.undoQueue.append(canvas.data.image.copy())
-        canvas.data.imageForTk=makeImageForTk(canvas)
+        canvas.data.imageForTk=resize_func(canvas)
         drawImage(canvas)
 
 def flip(canvas):
     
-    canvas.data.cropPopToHappen=False
+    canvas.data.cropaction=False
     
     if canvas.data.image!=None:
         canvas.data.image=ImageOps.flip(canvas.data.image)
         save(canvas)
         canvas.data.undoQueue.append(canvas.data.image.copy())
-        canvas.data.imageForTk=makeImageForTk(canvas)
+        canvas.data.imageForTk=resize_func(canvas)
         drawImage(canvas)
 
 def keyPressed(canvas, event):
@@ -122,7 +121,7 @@ def undo(canvas):
     if len(canvas.data.undoQueue)>0:
         canvas.data.image=canvas.data.undoQueue[-1]
     save(canvas)
-    canvas.data.imageForTk=makeImageForTk(canvas)
+    canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
 
 def redo(canvas):
@@ -133,7 +132,7 @@ def redo(canvas):
         
         lastImage=canvas.data.redoQueue.popleft()
         canvas.data.undoQueue.append(lastImage)
-    canvas.data.imageForTk=makeImageForTk(canvas)
+    canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
 
 
@@ -148,7 +147,7 @@ def save(canvas):
         im=canvas.data.image
         im.save(canvas.data.imageLocation)
 
-def newImage(canvas):
+def insert_image(canvas):
     imageName=askopenfilename()
     filetype=""
 
@@ -164,14 +163,14 @@ def newImage(canvas):
         canvas.data.originalImage=im.copy()
         canvas.data.undoQueue.append(im.copy())
         canvas.data.imageSize=im.size 
-        canvas.data.imageForTk=makeImageForTk(canvas)
+        canvas.data.imageForTk=resize_func(canvas)
         drawImage(canvas)
     else:
         messagebox.showinfo(title="Image File",\
         message="Choose an Image File!" , parent=canvas.data.mainWindow)
 
 
-def makeImageForTk(canvas):
+def resize_func(canvas):
     im=canvas.data.image
     if canvas.data.image!=None:
        
@@ -201,19 +200,18 @@ def drawImage(canvas):
         canvas.data.imageTopY=int(round(canvas.data.height/2.0-canvas.data.resizedIm.size[1]/2.0))
 
 
-def init(root, canvas):
+def initial_func(root, canvas):
 
-    buttonsInit(root, canvas)
-    menuInit(root, canvas)
+    Button_func(root, canvas)
+    menu_func(root, canvas)
     canvas.data.image=None
-    canvas.data.rotateWindowClose=False
-    canvas.data.cropPopToHappen=False
+    canvas.data.cropaction=False
     canvas.data.endCrop=False
     canvas.data.undoQueue=deque([], 10)
     canvas.data.redoQueue=deque([], 10)
     canvas.pack()
 
-def buttonsInit(root, canvas):
+def Button_func(root, canvas):
     backgroundColour="white"
     buttonWidth=14
     buttonHeight=2
@@ -245,9 +243,9 @@ def buttonsInit(root, canvas):
     
     toolKitFrame.pack(side=TOP)
 
-def menuInit(root, canvas):
+def menu_func(root, canvas):
     menubar=Menu(root)
-    menubar.add_command(label="New", command=lambda:newImage(canvas))
+    menubar.add_command(label="New", command=lambda:insert_image(canvas))
     menubar.add_command(label="Save", command=lambda:save(canvas))
     menubar.add_command(label="Save As", command=lambda:saveAs(canvas))
     editmenu = Menu(menubar, tearoff=0)
@@ -256,15 +254,15 @@ def menuInit(root, canvas):
     menubar.add_cascade(label="Edit", menu=editmenu)
     root.config(menu=menubar)
     rotate_img = Menu(menubar, tearoff=0)
-    rotate_img.add_command(label="Rotate right", command=lambda:rotate_imager(canvas))
-    rotate_img.add_command(label="Rotate left", command=lambda:rotate_imagel(canvas))
+    rotate_img.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
+    rotate_img.add_command(label="Rotate left", command=lambda:rotate_left(canvas))
     menubar.add_cascade(label="Rotate", menu=rotate_img)
     root.config(menu=menubar)
 
 
 def run():
     root = Tk()
-    root.title("Image Editor")
+    root.title("Python Photo Editor")
     canvasWidth=500
     canvasHeight=500
     canvas = Canvas(root, width=canvasWidth, height=canvasHeight, \
@@ -275,7 +273,7 @@ def run():
     canvas.data.width=canvasWidth
     canvas.data.height=canvasHeight
     canvas.data.mainWindow=root
-    init(root, canvas)
+    initial_func(root, canvas)
     root.bind("<Key>", lambda event:keyPressed(canvas, event))
    
     root.mainloop()  
