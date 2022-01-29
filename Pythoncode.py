@@ -8,7 +8,13 @@ from tkinter import messagebox
 import imghdr
 from PIL import ImageDraw
 from collections import*
-    
+
+from PyQt5.QtWidgets import (
+    QMainWindow, QApplication,
+    QLabel, QToolBar, QAction, QStatusBar
+)
+#from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 
 def crop(canvas):
     
@@ -53,8 +59,6 @@ def performCrop(event,canvas):
     canvas.data.undoQueue.append(canvas.data.image.copy())
     canvas.data.imageForTk=resize_func(canvas)
     drawImage(canvas)
-    
-    
     
 def rotate_right(canvas):
     ig=canvas.data.image
