@@ -8,13 +8,39 @@ from tkinter import messagebox
 import imghdr
 from PIL import ImageDraw
 from collections import*
+import ctypes
+from tkinter import colorchooser
 
-from PyQt5.QtWidgets import (
-    QMainWindow, QApplication,
-    QLabel, QToolBar, QAction, QStatusBar
-)
-#from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+
+def drawOnImage(canvas):
+    canvas.data.colourPopToHappen=False
+    canvas.data.cropPopToHappen=False
+    canvas.data.drawOn=True
+    my_color= colorchooser.askcolor()[1]
+    colourChosen(canvas,my_color)
+
+
+def colourChosen(canvas, colour):
+    if canvas.data.image!=None:
+        canvas.data.drawColour=colour
+        canvas.data.mainWindow.bind("<B1-Motion>",\
+                                    lambda event: drawDraw(event, canvas))
+    
+    
+
+def drawDraw(event, canvas):
+    if canvas.data.drawOn==True:
+        x=int(round((event.x-canvas.data.imageTopX)*canvas.data.imageScale))
+        y=int(round((event.y-canvas.data.imageTopY)*canvas.data.imageScale))
+        draw = ImageDraw.Draw(canvas.data.image)
+        draw.ellipse((x-3, y-3, x+ 3, y+3), fill=canvas.data.drawColour,\
+                     outline=None)
+        save(canvas)
+        canvas.data.undoQueue.append(canvas.data.image.copy())
+        canvas.data.imageForTk=resize_func(canvas)
+        drawImage(canvas)
+
+
 
 def crop(canvas):
     
@@ -223,7 +249,7 @@ def Button_func(root, canvas):
     cropButton=Button(toolKitFrame, text="Crop",\
                       background=backgroundColour ,\
                       width=buttonWidth, height=buttonHeight, \
-                      activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED',\
+                      activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED', \
                       command=lambda:crop(canvas))
     cropButton.grid(row=0,column=0)
     
@@ -239,11 +265,16 @@ def Button_func(root, canvas):
                       activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED', \
                       command=lambda: flip(canvas))
     flipButton.grid(row=0,column=3)
+    drawButton=Button(toolKitFrame, text="Draw",\
+                      background=backgroundColour ,width=buttonWidth,\
+                      activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED',\
+                      height=buttonHeight,command=lambda: drawOnImage(canvas))
+    drawButton.grid(row=0,column=4)
     resetButton=Button(toolKitFrame, text="Reset",\
                        background=backgroundColour ,width=buttonWidth,\
                        activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED', \
                        height=buttonHeight, command=lambda: reset(canvas))
-    resetButton.grid(row=0,column=4)
+    resetButton.grid(row=0,column=5)
     
     toolKitFrame.pack(side=TOP)
 
