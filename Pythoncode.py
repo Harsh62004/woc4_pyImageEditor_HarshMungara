@@ -138,6 +138,50 @@ def flip(canvas):
         canvas.data.imageForTk=resize_func(canvas)
         drawImage(canvas)
 
+
+def closeBrightnessWindow(canvas):
+    if canvas.data.image!=None:
+        save(canvas)
+        canvas.data.undoQueue.append(canvas.data.image.copy())
+        canvas.data.brightnessWindowClose=True
+
+def changeBrightness(canvas, brightnessWindow, brightnessSlider, \
+                     previousVal):
+    if canvas.data.brightnessWindowClose==True:
+        brightnessWindow.destroy()
+        canvas.data.brightnessWindowClose=False
+        
+    else:
+        if canvas.data.image!=None and brightnessWindow.winfo_exists():
+            sliderVal=brightnessSlider.get()
+            scale=(sliderVal-previousVal)/100.0
+            canvas.data.image=canvas.data.image.point(\
+                lambda i: i+ int(round(i*scale)))  
+            canvas.data.imageForTk=resize_func(canvas)
+            drawImage(canvas)
+            canvas.after(50, \
+            lambda: changeBrightness(canvas, brightnessWindow, \
+                                     brightnessSlider, sliderVal))
+
+       
+def brightness(canvas):
+    canvas.data.colourPopToHappen=False
+    canvas.data.cropPopToHappen=False
+    canvas.data.drawOn=False
+    brightnessWindow=Toplevel(canvas.data.mainWindow)
+    brightnessWindow.title("Brightness")
+    brightnessSlider=Scale(brightnessWindow, from_=-100, to=100,\
+                           orient=HORIZONTAL)
+    brightnessSlider.pack()
+    OkBrightnessFrame=Frame(brightnessWindow)
+    OkBrightnessButton=Button(OkBrightnessFrame, text="OK", \
+                              command=lambda: closeBrightnessWindow(canvas))
+    OkBrightnessButton.grid(row=0,column=0)
+    OkBrightnessFrame.pack(side=BOTTOM)
+    changeBrightness(canvas, brightnessWindow, brightnessSlider,0)
+    brightnessSlider.set(0)
+
+
 def keyPressed(canvas, event):
     if event.keysym=="z":
         undo(canvas)
@@ -237,6 +281,8 @@ def initial_func(root, canvas):
     canvas.data.image=None
     canvas.data.cropaction=False
     canvas.data.endCrop=False
+    canvas.data.brightnessWindowClose=False
+    canvas.data.brightnessLevel=None
     canvas.data.undoQueue=deque([], 10)
     canvas.data.redoQueue=deque([], 10)
     canvas.pack()
@@ -270,11 +316,17 @@ def Button_func(root, canvas):
                       activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED',\
                       height=buttonHeight,command=lambda: drawOnImage(canvas))
     drawButton.grid(row=0,column=4)
+    brightnessButton=Button(toolKitFrame, text="Brightness",\
+                            background=backgroundColour ,\
+                            width=buttonWidth, height=buttonHeight,\
+                            activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED', \
+                            command=lambda: brightness(canvas))
+    brightnessButton.grid(row=0,column=5)
     resetButton=Button(toolKitFrame, text="Reset",\
                        background=backgroundColour ,width=buttonWidth,\
                        activeforeground="WHITE",activebackground="BLACK", bg="WHITE",fg='RED', \
                        height=buttonHeight, command=lambda: reset(canvas))
-    resetButton.grid(row=0,column=5)
+    resetButton.grid(row=0,column=6)
     
     toolKitFrame.pack(side=TOP)
 
