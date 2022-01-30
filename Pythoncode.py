@@ -331,19 +331,25 @@ def Button_func(root, canvas):
     toolKitFrame.pack(side=TOP)
 
 def menu_func(root, canvas):
+    
     menubar=Menu(root)
-    menubar.add_command(label="New", command=lambda:insert_image(canvas))
-    menubar.add_command(label="Save", command=lambda:save(canvas))
-    menubar.add_command(label="Save As", command=lambda:saveAs(canvas))
+    filemenu=Menu(menubar,tearoff=0)
+    filemenu.add_command(label="New", command=lambda:insert_image(canvas))
+    filemenu.add_command(label="Save", command=lambda:save(canvas))
+    filemenu.add_command(label="Save As", command=lambda:saveAs(canvas))
+    menubar.add_cascade(label="File", menu=filemenu)
+    root.config(menu=menubar)
     editmenu = Menu(menubar, tearoff=0)
-    editmenu.add_command(label="Undo   Z", command=lambda:undo(canvas))
-    editmenu.add_command(label="Redo   Y", command=lambda:redo(canvas))
+    editmenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
+    editmenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
+
+    mymenu=Menu(editmenu)
+    mymenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
+    mymenu.add_command(label="Rotate right", command=lambda:rotate_left(canvas))
     menubar.add_cascade(label="Edit", menu=editmenu)
     root.config(menu=menubar)
-    rotate_img = Menu(menubar, tearoff=0)
-    rotate_img.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
-    rotate_img.add_command(label="Rotate left", command=lambda:rotate_left(canvas))
-    menubar.add_cascade(label="Rotate", menu=rotate_img)
+    menubar.add_command(label="Undo-Z", command=lambda:undo(canvas))
+    menubar.add_command(label="Redo-Y", command=lambda:redo(canvas))
     root.config(menu=menubar)
 
 
