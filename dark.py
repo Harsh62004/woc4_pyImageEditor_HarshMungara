@@ -364,11 +364,17 @@ def dark(root):
         root.config(menu=menubar)
         menubar.add_command(label="Undo-Z", command=lambda:undo(canvas))
         menubar.add_command(label="Redo-Y", command=lambda:redo(canvas))
+        menubar.add_command(label="Light Mode", command=lambda:light(root))
         menubar.config(bg="BLACK",fg="BLUE")
         root.config(menu=menubar)
 
 
-    def run():
+    def light(root):
+        root.destroy()
+        run()
+
+
+    def run1():
         root = Tk()
         root.title("Python Photo Editor")
         root.configure(bg='black')
@@ -387,7 +393,7 @@ def dark(root):
         root.mainloop()  
 
 
-    run()
+    run1()
 #--------------------------------------------------------------DARK MODE---------------------------------------------------------------
 #--------------------------------------------------------------DARK MODE---------------------------------------------------------------
 #--------------------------------------------------------------DARK MODE---------------------------------------------------------------
@@ -732,10 +738,7 @@ def menu_func(root, canvas):
     root.config(menu=menubar)
     menubar.add_command(label="Undo-Z", command=lambda:undo(canvas))
     menubar.add_command(label="Redo-Y", command=lambda:redo(canvas))
-    
-    view=Menu(menubar,tearoff=0)
-    view.add_command(label="Dark Mode", command=lambda:dark(root))
-    menubar.add_cascade(label="View", menu=view)
+    menubar.add_command(label="Dark Mode", command=lambda:dark(root))
     root.config(menu=menubar)
 
 
