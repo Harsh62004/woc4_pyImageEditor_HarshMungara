@@ -729,7 +729,7 @@ def menu_func(root, canvas):
     root.config(menu=menubar)
     editmenu = Menu(menubar, tearoff=0)
     editmenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
-    editmenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
+    editmenu.add_command(label="Rotate left", command=lambda:rotate_left(canvas))
 
     mymenu=Menu(editmenu)
     mymenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))

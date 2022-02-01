@@ -345,7 +345,7 @@ def menu_func(root, canvas):
 
     mymenu=Menu(editmenu)
     mymenu.add_command(label="Rotate right", command=lambda:rotate_right(canvas))
-    mymenu.add_command(label="Rotate right", command=lambda:rotate_left(canvas))
+    mymenu.add_command(label="Rotate left", command=lambda:rotate_left(canvas))
     menubar.add_cascade(label="Edit", menu=editmenu)
     root.config(menu=menubar)
     menubar.add_command(label="Undo-Z", command=lambda:undo(canvas))
